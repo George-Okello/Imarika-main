@@ -188,7 +188,7 @@ export default function ChatScreen () {
            
         const botMessage = {
           _id: new Date().getTime() + 1,
-          text: answer || "Sorry, I didn't understand that. Could you please rephrase?",
+          text: answer || "Samahani, sikuelewa hilo. Je, unaweza kutamka upya?",
           createdAt: new Date(),
           user: {
             _id: 2,
