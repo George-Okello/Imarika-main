@@ -1,0 +1,130 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { GiftedChat } from 'react-native-gifted-chat';
+import { Image } from 'react-native';
+import axios from 'axios';
+
+// User and Bot avatar icons
+const userAvatar = require('../assets/bot_icon_246053.png');
+const botAvatar = require('../assets/farmer_icon_191446(1).png');
+
+export default function ChatScreen() {
+  const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    setMessages([
+      {
+        _id: 1,
+        text: 'Hello!',
+        createdAt: new Date(),
+        user: {
+          _id: 2,
+          name: 'Bot',
+          avatar: botAvatar,
+        },
+      },
+    ]);
+  }, []);
+
+  const handleSend = useCallback(async (newMessages = []) => {
+    const userMessage = newMessages[0];
+    const { text } = userMessage;
+
+    const translateMessage = await translateSwahiliToEnglish(text);
+    const translatedText = translateMessage || text;
+
+    const newMessage = {
+      _id: messages.length + 1,
+      text: translatedText,
+      createdAt: new Date(),
+      user: {
+        _id: 1,
+        name: 'User',
+        avatar: userAvatar,
+      },
+    };
+
+    setMessages((previousMessages) =>
+      GiftedChat.append(previousMessages, newMessage)
+    );
+
+    const response = await sendMessageToRasa(translatedText);
+    const botResponse = response[0]?.text;
+
+    if (botResponse) {
+      const botMessage = {
+        _id: messages.length + 2,
+        text: botResponse,
+        createdAt: new Date(),
+        user: {
+          _id: 2,
+          name: 'Bot',
+          avatar: botAvatar,
+        },
+      };
+
+      setMessages((previousMessages) =>
+        GiftedChat.append(previousMessages, botMessage)
+      );
+    }
+  }, [messages]);
+
+  const translateSwahiliToEnglish = async (text) => {
+    const options = {
+      method: 'GET',
+      url: 'https://nlp-translation.p.rapidapi.com/v1/translate',
+      params: {
+        text,
+        to: 'en',
+        from: 'sw',
+      },
+      headers: {
+        'X-RapidAPI-Key': '5f3f3652f3msh9fa0f56780b1f8bp155420jsn7ca5c2e91416',
+        'X-RapidAPI-Host': 'nlp-translation.p.rapidapi.com',
+      },
+    };
+
+    try {
+      const response = await axios.request(options);
+      return response.data.translated_text.en;
+    } catch (error) {
+      console.error(error);
+      return null; // Return null if translation fails
+    }
+  };
+
+  const sendMessageToRasa = async (message) => {
+    const requestBody = {
+      message,
+      sender: 'user',
+    };
+
+    try {
+      const response = await axios.post(
+        'http://16.16.100.131:5005/webhooks/rest/webhook',
+        requestBody
+      );
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  };
+
+  return (
+    <GiftedChat
+      messages={messages}
+      onSend={handleSend}
+      user={{
+        _id: 1,
+        name: 'User',
+        avatar: userAvatar,
+      }}
+      renderAvatar={({ user }) => (
+        <Image
+          source={user.avatar}
+          style={{ width: 40, height: 40, borderRadius: 20 }}
+        />
+      )}
+    />
+  );
+}
