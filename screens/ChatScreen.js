@@ -130,8 +130,16 @@ export default function ChatScreen () {
         console.log(response.data);
         //console.log(response.data.translated_text.en);
         //return response.data.data.translation;
+
         let translatedMessage = response.data.translated_text.sw;
-        return translatedMessage;
+
+        // Split the translated message into sentences
+        const sentences = translatedMessage.split('. ');
+    
+        // Join the sentences with paragraph breaks
+        const paragraph = sentences.join('.\n\n');
+    
+        return paragraph;
       } catch (error) {
         console.error(error);
         
@@ -188,7 +196,7 @@ export default function ChatScreen () {
            
         const botMessage = {
           _id: new Date().getTime() + 1,
-          text: answer || "Samahani, sikuelewa hilo. Je, unaweza kutamka upya?",
+          text: answer ,
           createdAt: new Date(),
           user: {
             _id: 2,
@@ -224,7 +232,7 @@ export default function ChatScreen () {
     setMessages([
       {
         _id: 1,
-        text: 'Karibu Imarika. Which crop would you like to know about?', 
+        text: 'Karibu Imarika. Je, ungependa kujua kuhusu zao gani?', 
        
         createdAt: new Date(),
         user: {
