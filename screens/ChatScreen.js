@@ -6,7 +6,7 @@ import { Avatar, Image } from 'react-native-elements';
 import Voice from '@react-native-voice/voice';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { color } from 'react-native-elements/dist/helpers';
-
+import Sound from 'react-native-sound';
 
 
 export default function ChatScreen () {
@@ -19,6 +19,11 @@ export default function ChatScreen () {
   const [isRecording, setIsRecording] = React.useState(false);
   const [showFeedbackPopup, setShowFeedbackPopup] = useState(false);
   const [userFeedback, setUserFeedback] = useState('');
+  const [audioURL, setAudioURL] = useState('');
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [sound, setSound] = useState(null);
+
+
 
 
   useEffect(() => {
@@ -35,6 +40,37 @@ export default function ChatScreen () {
       setTimeout(stopRecording, 5000);
     } catch (err) {
       setError(err);
+    }
+  };
+const playAudio = () => {
+  if (audioURL) {
+    const newSound = new Sound(audioURL, '', (error) => {
+      if (error) {
+        console.log('Error loading audio:', error);
+      } else {
+        // Set the sound state when it's loaded
+        setSound(newSound);
+        newSound.play((success) => {
+          if (success) {
+            setIsPlaying(false);
+          } else {
+            console.log('Playback failed due to audio decoding errors');
+          }
+        });
+      }
+    });
+
+    setIsPlaying(true);
+  }
+};
+  const stopAudio = () => {
+    if (isPlaying) {
+      // Stop the audio playback
+      if (sound) {
+        sound.pause(() => {
+          setIsPlaying(false);
+        });
+      }
     }
   };
 
@@ -134,7 +170,7 @@ export default function ChatScreen () {
         let translatedMessage = response.data.translated_text.sw;
 
         // Split the translated message into sentences
-        const sentences = translatedMessage.split('. ');
+        const sentences = translatedMessage.split('.');
     
         // Join the sentences with paragraph breaks
         const paragraph = sentences.join('.\n\n');
@@ -193,7 +229,7 @@ export default function ChatScreen () {
 
         const ans = botResponse.data[0]?.text;
         const answer = await translateEnglishTokiswahili(ans);  
-           
+        setAudioURL(`http://16.16.100.131:5500/api/tts?voice=larynx:biblia_takatifu-glow_tts&text=${encodeURIComponent(answer)}&denoiserStrength=0.018&larynx-length-scale=2`);
         const botMessage = {
           _id: new Date().getTime() + 1,
           text: answer ,
@@ -303,15 +339,28 @@ export default function ChatScreen () {
       </View>
     );
   }else if (feedback) {
-    return (
-      <View style={styles.footerFeedback}>
-        <TouchableOpacity onPress={() => handleFeedback('good')} style={styles.feedbackButton}>
-          <Icon name="thumb-up-alt" size={30} color="#008462" />
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => handleFeedback('poor')} style={styles.feedbackButton2}>
-          <Icon name="thumb-down-alt" size={30} color="#008462" />
-        </TouchableOpacity>
+      return (
+        <View style={styles.footerFeedback}>
+          {/* Play audio button */}
+          {!isPlaying ? (
+            <TouchableOpacity onPress={playAudio} style={styles.feedbackButton}>
+              <Icon name="volume-up" size={30} color="#008462" />
+            </TouchableOpacity>
+          ) : (
+            // Stop audio button
+            <TouchableOpacity onPress={stopAudio} style={styles.feedbackButton}>
+              <Icon name="stop" size={30} color="#008462" />
+            </TouchableOpacity>
+          )}
+  
+          {/* Feedback buttons */}
+          <TouchableOpacity onPress={() => handleFeedback('good')} style={styles.feedbackButton}>
+            <Icon name="thumb-up-alt" size={30} color="#008462" />
+          </TouchableOpacity>
+  
+          <TouchableOpacity onPress={() => handleFeedback('poor')} style={styles.feedbackButton2}>
+            <Icon name="thumb-down-alt" size={30} color="#008462" />
+          </TouchableOpacity>
 
         {/* Feedback Pop-up */}
         <Modal
@@ -349,40 +398,33 @@ const renderInputToolbar = (props) => {
   return (
     <View style={styles.inputContainer}>
       <TouchableOpacity
-        style={{marginBottom:10}}
+        style={{ marginBottom: 10 }}
         onPress={isRecording ? stopRecording : startRecording}
       >
-        <Text >
+        <Text>
           {isRecording ? (
-          <Icon name="mic-off" size={35} color="#008462"/>
-          
-          ) : 
-          (
-            
-            <Icon name="mic" size={35} color="#008462"/>
-          
-          ) }
+            <Icon name="mic-off" size={35} color="#008462" />
+          ) : (
+            <Icon name="mic" size={35} color="#008462" />
+          )}
         </Text>
       </TouchableOpacity>
 
-
       <TextInput
         style={styles.textInput}
-        placeholder="Record a message .. "
-        onChangeText={(text) => setRecordingMessage(text)}
+        placeholder="Type a message ..."
+        onChangeText={setResult}
         value={result}
-        
+        multiline
       />
-      {result.trim() !== '' && (
-      <TouchableOpacity onPress={handleSend} style={{marginBottom:10}}>
-      {/* <Text style={{fontWeight:'bold', color:'blue',fontSize:16,marginBottom:5}}>Send</Text> */}
-      <Icon name="send" size={35} color="#008462"/>
-          
+      
+      <TouchableOpacity onPress={handleSend} style={{ marginBottom: 10 }}>
+        <Icon name="send" size={35} color="#008462" />
       </TouchableOpacity>
-)}
     </View>
   );
 };
+
 
 
   return (

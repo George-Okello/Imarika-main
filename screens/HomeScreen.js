@@ -98,7 +98,7 @@ const api = {
 let [started, setStarted] = useState(false);
   //let t2 = data?.current_weather?.city_name + ", " + data?.current_weather?.country_name;
 
-const t15 = "Next 5-day Forecast";
+const t15 = "Utabiri wa siku 5 zijazo";
 let t1 = moment(new Date()).format("dddd, MMMM D YYYY");
   
 const fetchDataHandler = useCallback(() => {
@@ -161,9 +161,9 @@ const fetchDataHandler = useCallback(() => {
         setT18(Math.round(m9) + '°C');
         setT16(moment(date_1).format("dddd") + '\n' + moment(date_1).format("MMMM D"));
         setT3(Math.round(m3) + '°C');
-        setT5("Humidity" + '\n' +  Math.round(m5) + "%");
-        setT6("Wind Speed" + '\n' +  Math.round(m6) + " Km/h");
-        setT8("Rain" + '\n' +  Math.round(m8) + "%");
+        setT5("Unyevu" + '\n' +  Math.round(m5) + "%");
+        setT6("Kasi ya Upepo" + '\n' +  Math.round(m6) + " Km/h");
+        setT8("Mvua" + '\n' +  Math.round(m8) + "%");
         setT7(m8);
         setT2(t2)
         setIcon(m7);
