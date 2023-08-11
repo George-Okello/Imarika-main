@@ -59,12 +59,17 @@ export default function HomeScreen({ navigation }) {
   let longitude;
   /**
    * @author - Joseph Ridge
-   * objective: caching last location
+   * objective: caching last location 
    */
-  // let previousLatitude  = useState();
-  // let previousLongitude  = useState();
   const [previousLongitude, setPreviousLong] = useState(0);
   const [previousLatitude, setPreviousLat] = useState(0);
+
+  /**
+   * @author - Joseph Ridge
+   * objective: getLocation Name & Country 
+   */
+  const [locationName, setLocationName] = useState("");
+  const [locationCountry, setLocationCountry] = useState("");
 
   const [z1, setZ1] = useState("");
 
@@ -100,6 +105,28 @@ export default function HomeScreen({ navigation }) {
         console.log("Error ", error)
       }
     }
+    /**
+     * @author: Joseph Ridge
+     * purpose: reverse geolocation on the attained lat and lng values
+     *  
+     */
+    const reverseGeolocations = async(latitude, longitude)=>{
+
+      let targetUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`;
+
+      axios({
+        method: "Get",
+        url: targetUrl
+      })
+        .then((res) => {
+          let t2 = `${res.data.name}, ${res.data.address.country}` ;//res.data?.list[0]?.current_weather?.city_name + ", " + res.data?.list[0]?.current_weather?.country_name;
+          setT2(t2)
+            })
+             .catch(error => console.error(error))
+        .finally(() => setLoading(false));
+      }
+
+
     const requestLocationPermission = async (previousLatitude,previousLongitude) => {
         // if location is cached run fecth location first then proceed to fetchDataHandler else getCurrentLocations
       if ((previousLatitude == undefined || previousLatitude == 0 ) 
@@ -117,13 +144,13 @@ export default function HomeScreen({ navigation }) {
                 console.log('Latitude:', latitude);
                 console.log('Longitude:', longitude);
                 storeCurrentLocation(latitude, longitude); // @author - Joseph Ridge : USE: Cache location details using AsyncStorage 
+                reverseGeolocations(latitude,longitude);
                 fetchDataHandler(); // intial one
                 //fetchDataHandlerTest(); // test to see how data is fetched from openweather data - objective is to run this then hit translations API in background
-   
               },
-              error => {
+              (error) => {
                 console.log('Error getting location:', error);
-              }
+              },{enableHighAccuracy:true} // @author: Joseph Ridge => goal is to get a more accurate location
             );
           } else {
             console.log('Location permission denied');
@@ -132,11 +159,11 @@ export default function HomeScreen({ navigation }) {
           console.warn(err);
         }
       } else {
-        latitude = previousLatitude;
-        longitude = previousLongitude; 
-         fetchDataHandler(); // intial one
-         //fetchDataHandlerTest(); // test to see how data is fetched from openweather data - objective is to run this then hit translations API in background
-   
+                latitude = previousLatitude;
+                longitude = previousLongitude; 
+                reverseGeolocations(latitude, longitude); // @author: Joseph Ridge
+                fetchDataHandler(); // intial one
+                //fetchDataHandlerTest(); // test to see how data is fetched from openweather data - objective is to run this then hit translations API in background
       }
 
     };
@@ -198,6 +225,9 @@ export default function HomeScreen({ navigation }) {
   
     console.log(latitude);
     console.log(longitude);
+    // setLocationName(JSON.stringify(res.data.name));
+    // setLocationCountry(JSON.stringify(res.data.address.country));
+
     setLoading(true);
     let weatherApi = `http://13.39.36.89:80/location/${longitude}/${latitude}`;
     console.log("i'm at the fetch"),
@@ -208,9 +238,10 @@ export default function HomeScreen({ navigation }) {
       })
         .then((res, d1) => {
           // console.log("here")
+
           console.log(res.data.list);
           setData(res.data);
-          let t2 = res.data?.list[0]?.current_weather?.city_name + ", " + res.data?.list[0]?.current_weather?.country_name;
+          //let t2 = locationName +"," +locationCountry ;//res.data?.list[0]?.current_weather?.city_name + ", " + res.data?.list[0]?.current_weather?.country_name;
           let m3 = res.data?.list[0]?.current_weather?.temp_forecast;
           let m5 = res.data.list[0].current_weather.humidity;
           let m7 = res.data.list[0].current_weather.weather_icon;
@@ -260,7 +291,7 @@ export default function HomeScreen({ navigation }) {
           setT6("Kasi ya Upepo" + '\n' + Math.round(m6) + " Km/h");
           setT8("Mvua" + '\n' + Math.round(m8) + "%");
           setT7(m8);
-          setT2(t2)
+         // setT2(t2) //commented by Joseph Ridge in the aim of decoupling 
           setIcon(m7);
           setZ1(p1);
           setT20(m20)
