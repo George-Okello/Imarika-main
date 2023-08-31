@@ -49,7 +49,7 @@ export default function Forecast({data, weather}) {
         <View className="flex-row space-x-2 items-center">
           <Image source={require('../assets/icons/sun.png')} className="w-6 h-6" />
           <Text className="text-white font-semibold text-base">
-            8:00am
+          { weather?.forecast?.forecastday[0]?.astro?.sunrise }
           </Text>
         </View>
       </View>
