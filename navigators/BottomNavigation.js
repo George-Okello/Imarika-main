@@ -44,16 +44,7 @@ const BottomTabNavigator = () => {
           ),
         }}
       />
-      {/* <Tab.Screen
-        name="Videos"
-        component={VideoScreen}
-        options={{
-          tabBarLabel: 'Videos',
-          tabBarIcon: ({ color, size }) => (
-            <Image source={require('../assets/video-outline.png')} style={{ width: size, height: size, tintColor: color }} />
-          ),
-        }}
-      />
+      {/*
        <Tab.Screen
         name="Rate Our App"
         component={RatingScreen}
@@ -74,6 +65,16 @@ const BottomTabNavigator = () => {
           ),
         }}
       /> 
+       <Tab.Screen
+        name="Videos"
+        component={VideoScreen}
+        options={{
+          tabBarLabel: 'Videos',
+          tabBarIcon: ({ color, size }) => (
+            <Image source={require('../assets/video-outline.png')} style={{ width: size, height: size, tintColor: color }} />
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
 };
