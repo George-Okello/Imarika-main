@@ -33,9 +33,16 @@ export default function ChatScreen () {
     Voice.onSpeechResults = (res) => setResult(res.value[0]);
   }, []);
 
+  // Configure recognition options, including recognition mode
+  const recognitionOptions = {
+        language: 'sw-TZ', // Set the desired language
+        recognitionMode: 'dictation', // higher accuracy for conversational  free from output
+        showPartial: true, // Whether to show partial results
+      };
+
   const startRecording = async () => {
     try {
-      await Voice.start('sw-TZ'); // Set language to Swahili
+      await Voice.start('sw-TZ', recognitionOptions); // Set language to Swahili
       setIsRecording(true);
       setTimeout(stopRecording, 5000);
     } catch (err) {
@@ -141,7 +148,6 @@ const playAudio = () => {
       return translatedMessage;
     } catch (error) {
       console.error(error);
-      
     }
   };
 
@@ -170,15 +176,15 @@ const playAudio = () => {
         let translatedMessage = response.data.translated_text.sw;
 
         // Split the translated message into sentences
-        const sentences = translatedMessage.split('.');
-    
+        const sentences = translatedMessage.split('.'); 
+
         // Join the sentences with paragraph breaks
-        const paragraph = sentences.join('.\n\n');
-    
+        const paragraph = sentences.join('.\n\n'); 
+
         return paragraph;
       } catch (error) {
         console.error(error);
-        
+
       }
     };
 
@@ -464,6 +470,7 @@ const styles = StyleSheet.create({
   inputContainer: {
       flexDirection: "row",
       alignItems: "center",
+      marginHorizontal:8,
       //padding: 10,
      // backgroundColor: "#fff",
    //  borderTopWidth: 1,
