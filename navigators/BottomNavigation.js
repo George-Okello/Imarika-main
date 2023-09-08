@@ -7,6 +7,7 @@ import HomeScreen from '../screens/HomeScreen';
 import { Avatar, Image } from 'react-native-elements';
 import { View, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { relativeTimeRounding } from 'moment';
 
 const Tab = createBottomTabNavigator();
 
@@ -29,12 +30,26 @@ function HomeScreens() {
 
 const BottomTabNavigator = () => {
   return (
+    <View style={{ flex: 1, backgroundColor: 'transparent', position: 'relative' }}>
+    
+    <View>
+     
+      </View>   
     <Tab.Navigator
       screenOptions={{
         tabBarActiveTintColor: '#008642',
+        position:'absolute',
+        borderRadius: 20, elevation: 5,
         
-      }}>
-     <Tab.Screen
+        tabBarStyle: {
+          borderRadius: 20,
+          backgroundColor: 'white',
+          margin:20,
+        },
+        tabBarActiveTintColor: '#008642',
+      }}
+     >
+        <Tab.Screen
         name="Home"
         component={HomeScreen}
         options={{
@@ -75,7 +90,8 @@ const BottomTabNavigator = () => {
           ),
         }}
       />
-    </Tab.Navigator>
+      </Tab.Navigator>
+    </View>
   );
 };
 
