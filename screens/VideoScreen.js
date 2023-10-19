@@ -6,7 +6,14 @@ const VideoComponent = ({ videoSource }) => {
   const videoRef = useRef(null);
   const [status, setStatus] = useState({});
   const [isPlaying, setIsPlaying] = useState(false);
-
+  
+  const handlePlayPauseToggle = () => {
+    if (videoRef.current) {
+      videoRef.current.seek(0); // Toggle video playback
+      setIsPlaying(!isPlaying);
+    }
+  };
+  
   const handlePlayPress = () => {
     if (videoRef.current) {
       if (isPlaying) {
@@ -17,7 +24,7 @@ const VideoComponent = ({ videoSource }) => {
       setIsPlaying(!isPlaying);
     }
   };
-
+/*
   const handleVideoPress = () => {
     if (isPlaying) {
       videoRef.current.pause();
@@ -27,6 +34,7 @@ const VideoComponent = ({ videoSource }) => {
       setIsPlaying(true);
     }
   };
+  */
  
   // style={[styles.videoContainer, { aspectRatio }]}
   return (
@@ -46,12 +54,15 @@ const VideoComponent = ({ videoSource }) => {
         style={styles.video}
         resizeMode="contain"
        // poster={require('../assets/farmer_icon_191446(1).png')} // Specify your thumbnail image path
-        repeat={true}
+        //repeat={true}
         source={videoSource.source} 
-        //paused={!isPlaying} // Pause the video when isPlaying is false
+        paused={isPlaying} // Pause the video when isPlaying is false
         onPlaybackStatusUpdate={status => setStatus(status)}
         //controls={true}
       />
+        <TouchableOpacity onPress={handlePlayPauseToggle} style={styles.playPauseButton}>
+        <Text>{isPlaying ? 'Pause' : 'Play'}</Text>
+      </TouchableOpacity> 
       
     </View>
   );
@@ -92,15 +103,33 @@ export default function VideoScreen({ navigation }) {
     </SafeAreaView>
   );
 }
+// dr.ramani 
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    margin:16,
     //backgroundColor: '#008462',
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 0,
     height:'100%'
+  },
+  video: {
+    flex: 1,
+    height: 400,
+  }, 
+  playPauseButton: {
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -25 }, { translateY: -25 }], // Center the button
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   overlay: {
     position: 'absolute',
@@ -130,10 +159,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 200,
     alignSelf: 'stretch',
-    borderRadius: 12,
-    paddingHorizontal:6,
-   // aspectRatio: 16 / 9, // Set the aspect ratio based on your video dimensions
-    //backgroundColor: 'black',
+    borderRadius: 20, 
     justifyContent: 'center', 
     alignItems: 'center',
   },
